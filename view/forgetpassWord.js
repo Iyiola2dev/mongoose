@@ -3,14 +3,25 @@ const form = document.getElementById("loginForm");
 // console.log(form, typeof(form))
 
 const formData = () => {
-  const {  Oldpassword  } = form;
+  const {  userName, oldPassword, newPassword, confirmPassword   } = form;
 
   const data = {
-    password: password.value,
+    userName: userName.value,
+    oldPassword: oldPassword.value,
+    newPassword : newPassword.value,
+    confirm_password: confirmPassword.value
+    
   };
-
+  
+// //  Basic input validation
+// if (oldPassword !== confirmPassword) {
+//   alert("The passwords don't match");
+//   return;
+// }
+  
+const url = `http://localhost:3000/api/v1/user/changePassword/${userName.value}`;
   console.log(data);
-  fetch("http://localhost:3000/api/v1/user//changePassword/:userName", {
+  fetch(url, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

@@ -10,6 +10,6 @@ router.post("/signIn", userLogin)
 
 router.get("/all",verifyJWToken, getAllUsers)
 
-router.patch("/changePassword/:userName", verifyJWToken, updatePassword)
+router.patch("/changePassword/:userName",  updatePassword)
 
 export default router
