@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
 export const createUser = async (req, res) => {
   try {
@@ -154,3 +155,6 @@ export const updateUserName = async (req, res) =>{
         return res.status(500).json({message: "Error fetching users"});
     }
 }
+
+
+// Forget password 
