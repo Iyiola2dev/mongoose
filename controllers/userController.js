@@ -70,6 +70,8 @@ export const userLogin = async (req, res) => {
   }
 };
 
+
+//This is to get all users
 export const getAllUsers = async (req, res) => {
   try {
     // Retrieve all users from the database
@@ -115,3 +117,40 @@ export const updatePassword = async (req, res) => {
     return res.status(500).json({ message: "Error fetching users" });
   }
 };
+
+
+
+//This is to change the already existing username
+export const updateUserName = async (req, res) =>{
+    try{
+        const { oldUsername, newUsername} = req.body;
+        const {userName} = req.params
+        const user = await User.findOne({userName});
+
+        if(!user){
+            return res.status(401).json({message:"Invalid credentials"})
+        }
+
+    const changeUsername = ()=>{
+        if(oldUsername === user.userName){
+            return res.status(200).json({message:"This username was created into the database😉"})
+        }
+    }
+    if(!changeUsername){
+        return res.status(400).json({message:"Incorrect userName"})
+    }
+
+    if(oldUsername === newUsername){
+        return res.status(401).json({message:"Username already used once input another username"})
+    }
+
+    user.userName =  newUsername
+    await user.save();
+    return res.status(200).json({message:"Username changed successfully"})
+
+
+    }catch(err){
+        console.log (err.message);
+        return res.status(500).json({message: "Error fetching users"});
+    }
+}
