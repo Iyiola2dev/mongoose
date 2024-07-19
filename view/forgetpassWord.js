@@ -9,16 +9,18 @@ const formData = () => {
     userName: userName.value,
     oldPassword: oldPassword.value,
     newPassword : newPassword.value,
-    confirm_password: confirmPassword.value
+    confirmPassword: confirmPassword.value
     
   };
   
-// //  Basic input validation
-// if (oldPassword !== confirmPassword) {
-//   alert("The passwords don't match");
-//   return;
-// }
-  
+//  Basic input validation
+if (data.newPassword !== data.confirmPassword) {
+  alert("The passwords don't match");
+  return;
+}
+
+
+//
 const url = `http://localhost:3000/api/v1/user/changePassword/${userName.value}`;
   console.log(data);
   fetch(url, {
