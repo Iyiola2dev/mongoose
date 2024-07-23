@@ -2,6 +2,10 @@ import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import dotenv from "dotenv"
+import { OPTgenrator } from "../lib/OTPgenerator.js";
+
+dotenv.config()
 
 export const createUser = async (req, res) => {
   try {
@@ -158,3 +162,123 @@ export const updateUserName = async (req, res) =>{
 
 
 // Forget password 
+export const sendOtp = async (req, res)=>{
+  try{
+    const {email} = req.body;
+    if(!email) return res.status(400).json({message: "Please provide an email"})
+      const user =await User.findOne({email})
+    if(!user) return res.status(400).json({message: "User not found"});
+
+    const otp = OPTgenrator()
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      host: "smtp.gamil.com",
+      port: 465,
+      secure: true, // Use `true` for port 465, `false` for all other ports
+      auth: {
+        user: "iyiolad19@gmail.com",
+        pass: process.env.GOOGLE_APP_PASSWORD,
+      },
+    });
+
+
+
+   const mailOptions = {
+    from: '"Maddison Foo Koch 👻" <iyiolad19@gmail.com>', // sender address
+    to: "lexicon@yopmail.com", // list of receivers
+    subject: "Password Reset", // Subject line
+    text: `Your OTP code is ${otp}. It is valid for the next 30 seconds.`, // Plain text body
+    html: `<p>Your OTP code is <b>${otp}</b>. It is valid for the next 30 seconds.</p>`, // HTML body
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email: ", error);
+      } else {
+        console.log("Email sent: ", info.response);
+        res.status(200).json({
+          message: "OTP sent successfully"
+        })
+      }
+    });
+  } catch (error){
+    console.log (err.message);
+    return res.status(500).json({message: "An error occuring while trying to send OTP"});
+  }
+}
+
+//Trying to throw an otp
+
+// export const forgotPassword = async (req, res) =>{
+//   try{
+//     const {userName} = req.params;
+//     const user = await User.findOne({ userName });
+//     if (!user) {
+//         return res.status(401).json({ message: "Invaild credentials" });
+//       }
+     
+//       const otp = OPTgenrator()
+//       user.password = otp
+//       await user.save();
+
+//       return res.status(200).json({ message: "OTP generated and set as new password", otp });
+//   }catch(error){
+//     console.log (err.message);
+//     return res.status(500).json({ message: "Server error" });
+//   }
+//   }
+
+
+export const login_otp = async (req, res)=>{
+  try{
+    const{email, otp} = req.body;
+   if(!email || !otp){
+    return res
+    .status(400)
+    .json({ message: "Please provide an email and otp"})
+    }
+    const user = await User.findOne ({email});
+    if (!user){
+      return res.status(400).json({message: "User not found"})
+    }
+    const token = jwt.sign({ userID: user._id}, process.env.JWT_SECRET_KEY,{
+      expiresIn: "1h",
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "User logged in successfully",
+      token
+    })
+  }catch(error){
+    console.log (err.message);
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
+//
+export const updatePasswordOtp = async (req, res)=>{
+  try{
+    const { email }= req.params
+    const {newPassword} = req.body
+
+    if(!email || !newPassword){
+      return res.status(400).json({message: " Please provide an email and new password"})
+    }
+    const user = await User.findOne ({email});
+    if (!user){
+      return res.status(400).json({message: "User not found"})
+  }
+  user.password = newPassword;
+  user.save();
+
+  res
+  .status(200)
+  .json({status: "success", message: "Password updated successfully"})
+
+  }catch (error){
+    console.log (err.message);
+    return res.status(500).json({ message: "Server error" });
+}
+}

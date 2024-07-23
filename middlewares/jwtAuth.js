@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 
+
 //create jwt middleware to check secure authentification
 export const verifyJWToken = async (req, res, next) => {
   try {
@@ -26,3 +27,5 @@ export const verifyJWToken = async (req, res, next) => {
     });
   }
 };
+
+
