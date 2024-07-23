@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv"
-import { OPTgenrator } from "../lib/OTPgenerator.js";
+import { OTPgenrator } from "../lib/OTPgenerator.js";
 
 dotenv.config()
 
@@ -169,7 +169,7 @@ export const sendOtp = async (req, res)=>{
       const user =await User.findOne({email})
     if(!user) return res.status(400).json({message: "User not found"});
 
-    const otp = OPTgenrator()
+    const otp = await OTPgenrator(user._id, user.user)
 
     const transporter = nodemailer.createTransport({
       service: "Gmail",
@@ -186,7 +186,7 @@ export const sendOtp = async (req, res)=>{
 
    const mailOptions = {
     from: '"Maddison Foo Koch 👻" <iyiolad19@gmail.com>', // sender address
-    to: "lexicon@yopmail.com", // list of receivers
+    to: "iyioladan11@gmail.com", // list of receivers
     subject: "Password Reset", // Subject line
     text: `Your OTP code is ${otp}. It is valid for the next 30 seconds.`, // Plain text body
     html: `<p>Your OTP code is <b>${otp}</b>. It is valid for the next 30 seconds.</p>`, // HTML body
@@ -203,7 +203,7 @@ export const sendOtp = async (req, res)=>{
       }
     });
   } catch (error){
-    console.log (err.message);
+    console.log (error.message);
     return res.status(500).json({message: "An error occuring while trying to send OTP"});
   }
 }
@@ -234,9 +234,7 @@ export const login_otp = async (req, res)=>{
   try{
     const{email, otp} = req.body;
    if(!email || !otp){
-    return res
-    .status(400)
-    .json({ message: "Please provide an email and otp"})
+    return res.status(400).json({ message: "Please provide an email and otp"})
     }
     const user = await User.findOne ({email});
     if (!user){
@@ -270,7 +268,10 @@ export const updatePasswordOtp = async (req, res)=>{
     if (!user){
       return res.status(400).json({message: "User not found"})
   }
-  user.password = newPassword;
+
+  const saltRounds = 10;
+  const hashedPassword  =  await bcrypt.hash(newPassword, saltRounds);
+  user.password = hashedPassword;
   user.save();
 
   res

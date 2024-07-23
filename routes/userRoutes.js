@@ -16,7 +16,7 @@ router.patch("/changePassword/:userName",   updatePassword);
 router.patch("/changeUserName/:userName",  updateUserName);
 router.patch("/send-otp",  sendOtp)
 router.post("/login-otp", validateOTP, login_otp);
-router.patch("/forgot-password/:email", verifyJWToken, updatePasswordOtp)
+router.patch("/forgot-password-otp/:email", verifyJWToken, updatePasswordOtp)
 
 
 export default router
