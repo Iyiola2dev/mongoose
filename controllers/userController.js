@@ -169,7 +169,7 @@ export const sendOtp = async (req, res)=>{
       const user =await User.findOne({email})
     if(!user) return res.status(400).json({message: "User not found"});
 
-    const otp = await OTPgenrator(user._id, user.user)
+    const otp = await OTPgenrator("123")
 
     const transporter = nodemailer.createTransport({
       service: "Gmail",
@@ -208,28 +208,11 @@ export const sendOtp = async (req, res)=>{
   }
 }
 
-//Trying to throw an otp
-
-// export const forgotPassword = async (req, res) =>{
-//   try{
-//     const {userName} = req.params;
-//     const user = await User.findOne({ userName });
-//     if (!user) {
-//         return res.status(401).json({ message: "Invaild credentials" });
-//       }
-     
-//       const otp = OPTgenrator()
-//       user.password = otp
-//       await user.save();
-
-//       return res.status(200).json({ message: "OTP generated and set as new password", otp });
-//   }catch(error){
-//     console.log (err.message);
-//     return res.status(500).json({ message: "Server error" });
-//   }
-//   }
 
 
+
+
+//Login with otp
 export const login_otp = async (req, res)=>{
   try{
     const{email, otp} = req.body;
