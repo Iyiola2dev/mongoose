@@ -5,11 +5,13 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv"
 import { OTPgenrator } from "../lib/OTPgenerator.js";
 
+
 dotenv.config()
 
 export const createUser = async (req, res) => {
   try {
     const { userName, password } = req.body;
+    const {role} = req.params
     const user = new User(req.body);
 
     //Check If User Exists In THe Database
@@ -23,17 +25,35 @@ export const createUser = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     user.password = hashedPassword;
+    //
+    if (role === 'admin' || role === 'staff' || role === "user") {
+      user.role = role;
 
-    await user.save();
-    res.status(201).json({
-      status: "success",
-      message: "User created successfully",
-    });
+      await user.save();
+      res.status(201).json({
+        status: "success",
+        message: `${user.role}  created successfully`,
+      });
+      
+    } else {
+      user.role = 'user';
+
+      await user.save();
+      res.status(201).json({
+        status: "success",
+        message: `${user.role}  created successfully`,
+      });
+    }
+
+    
+
+   
   } catch (error) {
     res.status(400).send(error);
   }
 };
 
+//Use login
 export const userLogin = async (req, res) => {
   try {
     const { userName, password } = req.body;
@@ -58,13 +78,13 @@ export const userLogin = async (req, res) => {
     }
 
     //This is the token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET_KEY, {
       expiresIn: "1h",
     });
 
     res.status(200).json({
       status: "success",
-      message: "User Logged in successfully",
+      message: `${user.role} created successfully`,
       token,
     });
   } catch (error) {
@@ -169,7 +189,8 @@ export const sendOtp = async (req, res)=>{
       const user =await User.findOne({email})
     if(!user) return res.status(400).json({message: "User not found"});
 
-    const otp = await OTPgenrator("123")
+    const otp = await OTPgenrator(user?.secretKey)
+
 
     const transporter = nodemailer.createTransport({
       service: "Gmail",
