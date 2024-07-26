@@ -1,4 +1,5 @@
 import { Schema, model} from 'mongoose';
+import crypto from "crypto";
 
 const userSchema = new Schema({
     firstName:{
@@ -32,8 +33,18 @@ const userSchema = new Schema({
         type: Date,
        default: Date.now
     },
-
-})
+    role:{
+        type: String,
+        enum: ["user", "admin", "staff"],
+       required: true,
+    },
+    secretKey:{
+        type: String,
+        default: function () {
+            return crypto.randomBytes(16).toString("hex")
+         },
+    }
+});
 
 const User = model("User", userSchema)
 
